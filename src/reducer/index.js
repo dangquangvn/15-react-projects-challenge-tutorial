@@ -2,11 +2,12 @@ import React, { useState, useReducer } from "react";
 import Modal from "./Modal";
 import { data } from "../data";
 // reducer function
-const reducer = (state, action) => {};
+import { reducer } from "./reducer";
+
 const defaultState = {
-  people: data,
-  isModalOpen: true,
-  modalContent: "hello world"
+  people: [],
+  isModalOpen: false,
+  modalContent: ""
 };
 
 const Index = () => {
@@ -27,13 +28,30 @@ const Index = () => {
       // setShowModal(true);
       // setPeople([...people, { id: new Date().getTime().toString(), name }]);
       // setName("");
+      //refactor
+      const newPeople = { id: new Date().getTime().toString(), name };
+      // we won't change value directly like useState (setPeople, setModal)
+      // but always via dispatch
+      dispatch({ type: "ADD_ITEM", payload: newPeople });
+      setName("");
     } else {
       // setShowModal(true);
+      dispatch({ type: "NO_VALUE" });
     }
+  };
+
+  const closeModal = () => {
+    dispatch({ type: "CLOSE_MODAL" });
+  };
+
+  const handleRemove = (id) => {
+    dispatch({ type: "REMOVE_ITEM", payload: id });
   };
   return (
     <>
-      {state.isModalOpen && <Modal />}
+      {state.isModalOpen && (
+        <Modal modalContent={state.modalContent} closeModal={closeModal} />
+      )}
       <form action="" onSubmit={handleSubmit}>
         <div>
           <input
@@ -46,9 +64,21 @@ const Index = () => {
           <button type="submit">Submit</button>
         </div>
       </form>
-      {state.people.map((person) => (
-        <div key={person.id}>{person.name}</div>
-      ))}
+      {state.people.map((person) => {
+        return (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+            key={person.id}
+          >
+            <div>{person.name}</div>
+            <button onClick={() => handleRemove(person.id)}>X</button>
+          </div>
+        );
+      })}
     </>
   );
 };
